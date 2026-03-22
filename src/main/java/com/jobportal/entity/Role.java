@@ -1,6 +1,6 @@
 package com.jobportal.entity;
 
-public enum role {
+public enum Role {
     USER,
     RECRUITER,
     ADMIN
