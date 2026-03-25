@@ -1,5 +1,8 @@
 package com.jobportal.service;
 
+import com.jobportal.dto.SignupRequest;
+import com.jobportal.dto.SignupResponse;
+import com.jobportal.entity.Role;
 import com.jobportal.entity.User;
 import com.jobportal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,23 +11,31 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService
+{
+     private final UserRepository userRepository;
+     private final PasswordEncoder passwordEncoder;
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+     @Override
+    public SignupResponse registerUser(SignupRequest request)
+     {
+         // check if user is already exists
+         if(userRepository.findByEmail(request.getEmail()).isPresent())
+         {
+             throw new RuntimeException("Email already exist ");
+         }
 
-    @Override
-    public User registerUser(User user) {
+         // convert the DTO -> entity
+         User user = User.builder().name(request.getName()).email(request.getEmail()).password(passwordEncoder.encode(request.getPassword()))
+                 .role(Role.USER).build();
 
-        // 🔍 Check if email already exists
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already registered");
-        }
+         // save the user
+         User savedUser= userRepository.save(user);
 
-        // 🔐 Encrypt password
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+         // convert entity - > response dto
+         return SignupResponse.builder().id(savedUser.getId()).name(savedUser.getName()).email(savedUser.getEmail())
+                 .message("User Registered successfully").build();
+     }
 
-        // 💾 Save user to DB
-        return userRepository.save(user);
-    }
+
 }

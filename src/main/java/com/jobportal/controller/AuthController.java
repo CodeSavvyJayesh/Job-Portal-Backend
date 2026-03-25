@@ -1,5 +1,7 @@
 package com.jobportal.controller;
 
+import com.jobportal.dto.SignupRequest;
+import com.jobportal.dto.SignupResponse;
 import com.jobportal.entity.User;
 import com.jobportal.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final UserService userService;
     @PostMapping("/signup")
-    public User registerUser(@RequestBody User user)
+    public SignupResponse registerUser(@RequestBody SignupRequest request)
     {
-        return userService.registerUser(user);
+         return userService.registerUser(request);
     }
 
 
