@@ -43,11 +43,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // 🔹 Validate token
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
+            String role = jwtUtil.extractRole(token);
             UserDetails userDetails = User
                     .withUsername(email)
                     .password("")
-                    .authorities("USER")
+                    .authorities("ROLE_" + role)
                     .build();
 
             if (jwtUtil.validateToken(token, email)) {

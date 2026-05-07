@@ -12,18 +12,21 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    // 🔐 Strong secret key (MUST be 32+ chars)
+    // secret key for strong password...
     private final Key SECRET_KEY = Keys.hmacShaKeyFor(
             "myveryveryverysecuresecretkey1234567890".getBytes()
     );
 
-    // ⏱️ Token validity (1 hour)
+    //  token validity is 1 hr
     private final long EXPIRATION_TIME = 1000 * 60 * 60;
 
     // 🔹 1. Generate Token
-    public String generateToken(String email) {
+    // now in order to generate token we have to make sure that parameters would be
+    // email as well as the role
+    public String generateToken(String email, String role) {
         return Jwts.builder()
                 .setSubject(email)
+                .claim("role",role)   // claim is used to add the extra data inside token
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SECRET_KEY) // ✅ correct way
@@ -33,6 +36,12 @@ public class JwtUtil {
     // 🔹 2. Extract Email
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    // extract role
+    public String extractRole(String token)
+    {
+         return extractAllClaims(token).get("role",String.class);
     }
 
     // 🔹 3. Extract Expiration
@@ -59,7 +68,7 @@ public class JwtUtil {
 
     // 🔹 7. Extract All Claims
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder() // ✅ correct for latest version
+        return Jwts.parserBuilder() //
                 .setSigningKey(SECRET_KEY)
                 .build()
                 .parseClaimsJws(token)

@@ -25,8 +25,13 @@ public class securityConfig {
 
                 // 🔹 Authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // only login/signup open
-                        .anyRequest().authenticated() // EVERYTHING else protected 🔐
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/user/**").hasRole("USER")
+                        .requestMatchers("/api/recruiter/**").hasRole("RECRUITER")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated() // everything else require the authentication
+
+
                 )
 
                 // 🔹 Disable default login
