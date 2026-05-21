@@ -17,8 +17,10 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false,length = 150)
+    // this refers to title of job
     private String title;
     @Column(nullable = false, length = 120)
+    // company name
     private String company;
     @Column(nullable = false, length = 3000)
     private String description;
@@ -36,6 +38,7 @@ public class Job {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     // one recruiter -> many jobs
+
     @ManyToOne
     @JoinColumn(name = "recruiter_id", nullable = false)
     private User recruiter;
