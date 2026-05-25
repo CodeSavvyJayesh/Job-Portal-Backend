@@ -3,7 +3,9 @@ package com.jobportal.service;
 import com.jobportal.dto.JobRequest;
 import com.jobportal.dto.JobResponse;
 import com.jobportal.entity.Job;
+import com.jobportal.entity.User;
 import com.jobportal.repository.JobRepository;
+import com.jobportal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,16 +18,18 @@ import java.util.Optional;
 public class JobServiceImpl implements JobService {
     /// this class will imlement all the methods that we declared in the interface class
     private final JobRepository jobRepository;
+    private final UserRepository userRepository;
     // we have to imlpement the methods
     @Override
     public JobResponse createJob(JobRequest request)
     {
+        User recruiter = userRepository.findByEmail("jayeshdhamal03@gmail.com").orElseThrow(()-> new RuntimeException());
          // in this you are actually creating the job
           Job job = Job.builder().
                   title(request.getTitle()).company(request.getCompany()).
                   description(request.getDescription()).location(request.getLocation()).
                   salary(request.getSalary()).experienceRequired(request.getExperienceRequired()).
-                  skills(request.getSkills()).jobType(request.getJobType()).createdAt(LocalDateTime.now()).build();
+                  skills(request.getSkills()).jobType(request.getJobType()).createdAt(LocalDateTime.now()).recruiter(recruiter).build();
 
           // save into database
           Job savedJob = jobRepository.save(job);

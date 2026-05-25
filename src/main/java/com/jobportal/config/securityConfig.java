@@ -31,7 +31,6 @@ public class securityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated() // everything else require the authentication
 
-
                 )
 
                 // 🔹 Disable default login

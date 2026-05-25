@@ -18,7 +18,7 @@ public class JwtUtil {
     );
 
     //  token validity is 1 hr
-    private final long EXPIRATION_TIME = 1000 * 60 * 60;
+    private final long EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7 ;
 
     // 🔹 1. Generate Token
     // now in order to generate token we have to make sure that parameters would be
