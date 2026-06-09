@@ -10,5 +10,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User,Long> {
 
     // here we wrong optional because it avoids null pointer exceptions
+
+    // find email by taking email parameter
     Optional<User> findByEmail(String email);
 }
