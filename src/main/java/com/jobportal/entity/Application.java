@@ -31,6 +31,9 @@ public class Application {
     private Job job;
 
     @Column(nullable = false, length = 500)
+    private String resumeUrl;
+
+    @Column(nullable = false, length = 500)
     private String coverLetter;
 
     @Enumerated(EnumType.STRING)

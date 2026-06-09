@@ -14,8 +14,7 @@ public interface ApplicationService{
     // it will create new application
       ApplicationResponse applyForJob(ApplicationRequest request);
 
-      // this will be for get my applications
-      List<ApplicationResponse> getMyApplications();
+      // this will be for get my application
 
       // recruiter view application
 

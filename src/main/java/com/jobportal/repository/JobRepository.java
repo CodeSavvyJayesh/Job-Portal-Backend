@@ -13,4 +13,5 @@ public interface JobRepository extends JpaRepository<Job,Long> {
 
     // basically after doing this spring will automatically generates query like:
     // select * from jobs where recruiter_id i= ?
+
 }

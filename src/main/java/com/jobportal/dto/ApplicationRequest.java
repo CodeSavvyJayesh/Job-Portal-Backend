@@ -12,7 +12,7 @@ import lombok.*;
 @RequiredArgsConstructor
 public class ApplicationRequest {
       ///  what we will be seding ?
-      //  resume url, cover letter
+      private Long jobId;
       private String resumeUrl;
       private String coverLetter;
 

@@ -18,5 +18,5 @@ public class ApplicationResponse {
     private String jobTitle;
     private String company;
     private String status;     // current status of the application // intially it will be pending
-    private LocalDateTime applietAt;
+    private LocalDateTime appliedAt;
 }
