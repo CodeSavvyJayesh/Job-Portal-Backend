@@ -18,6 +18,8 @@ public interface ApplicationService{
 
       // recruiter view application
 
+      List<ApplicationResponse> getMyApplications();
+
       List<ApplicationResponse> getApplicationsForJob(Long jobId);
 
       // updated status
