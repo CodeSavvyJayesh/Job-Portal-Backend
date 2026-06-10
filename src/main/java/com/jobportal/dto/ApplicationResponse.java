@@ -5,9 +5,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Builder
 public class ApplicationResponse {
     // in this response class we should get the response like what will happen after we apply

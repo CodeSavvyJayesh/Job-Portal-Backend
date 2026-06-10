@@ -4,12 +4,10 @@ package com.jobportal.dto;
 import lombok.*;
 
 @Data
-@Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
+
 public class ApplicationRequest {
       ///  what we will be seding ?
       private Long jobId;
