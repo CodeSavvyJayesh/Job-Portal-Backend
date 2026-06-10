@@ -26,7 +26,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public ApplicationResponse applyForJob(ApplicationRequest request)
     {
-        // baiscally user have to do all action
+
         User user = userRepository.findByEmail("jayeshdhamal03@gmail.com").orElseThrow(() ->
                 new RuntimeException("User not found "));
 
