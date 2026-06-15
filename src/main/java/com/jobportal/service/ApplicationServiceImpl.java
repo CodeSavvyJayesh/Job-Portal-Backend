@@ -10,6 +10,8 @@ import com.jobportal.repository.ApplicationRepository;
 import com.jobportal.repository.JobRepository;
 import com.jobportal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,19 +25,32 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final UserRepository userRepository;
     private final JobRepository jobRepository;
 
+    private User getCurrentUser() {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        String email = authentication.getName();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+    }
+
     @Override
     public ApplicationResponse applyForJob(ApplicationRequest request) {
 
-        User user = userRepository.findByEmail("jayeshdhamal03@gmail.com")
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user = getCurrentUser();
 
         Job job = jobRepository.findById(request.getJobId())
                 .orElseThrow(() ->
                         new RuntimeException("Job not found"));
 
         if (applicationRepository.existsByUserAndJob(user, job)) {
-            throw new RuntimeException("You have already applied for this job");
+            throw new RuntimeException(
+                    "You have already applied for this job");
         }
 
         Application application = Application.builder()
@@ -63,9 +78,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public List<ApplicationResponse> getMyApplications() {
 
-        User user = userRepository.findByEmail("jayeshdhamal03@gmail.com")
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user = getCurrentUser();
 
         List<Application> applications =
                 applicationRepository.findByUser(user);
@@ -112,7 +125,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application =
                 applicationRepository.findById(applicationId)
                         .orElseThrow(() ->
-                                new RuntimeException("Application not found"));
+                                new RuntimeException(
+                                        "Application not found"));
 
         application.setStatus(status);
 

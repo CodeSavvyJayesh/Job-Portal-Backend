@@ -7,6 +7,8 @@ import com.jobportal.entity.UserProfile;
 import com.jobportal.repository.UserProfileRepository;
 import com.jobportal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,14 +20,25 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserRepository userRepository;
 
+    private User getCurrentUser() {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        String email = authentication.getName();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+    }
+
     @Override
     public UserProfileResponse createProfile(
             UserProfileRequest request) {
 
-        User user = userRepository
-                .findByEmail("jayeshdhamal03@gmail.com")
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user = getCurrentUser();
 
         if (userProfileRepository.findByUser(user).isPresent()) {
             throw new RuntimeException(
@@ -60,10 +73,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public UserProfileResponse getProfile() {
 
-        User user = userRepository
-                .findByEmail("jayeshdhamal03@gmail.com")
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user = getCurrentUser();
 
         UserProfile profile =
                 userProfileRepository.findByUser(user)
@@ -87,10 +97,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     public UserProfileResponse updateProfile(
             UserProfileRequest request) {
 
-        User user = userRepository
-                .findByEmail("jayeshdhamal03@gmail.com")
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        User user = getCurrentUser();
 
         UserProfile profile =
                 userProfileRepository.findByUser(user)

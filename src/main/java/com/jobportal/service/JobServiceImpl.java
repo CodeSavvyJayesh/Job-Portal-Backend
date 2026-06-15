@@ -7,59 +7,76 @@ import com.jobportal.entity.User;
 import com.jobportal.repository.JobRepository;
 import com.jobportal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class JobServiceImpl implements JobService {
-    /// this class will imlement all the methods that we declared in the interface class
+
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
-    // we have to imlpement the methods
-    @Override
-    public JobResponse createJob(JobRequest request)
-    {
-        User recruiter = userRepository.findByEmail("jayeshdhamal03@gmail.com").orElseThrow(()-> new RuntimeException());
-         // in this you are actually creating the job
-          Job job = Job.builder().
-                  title(request.getTitle()).company(request.getCompany()).
-                  description(request.getDescription()).location(request.getLocation()).
-                  salary(request.getSalary()).experienceRequired(request.getExperienceRequired()).
-                  skills(request.getSkills()).jobType(request.getJobType()).createdAt(LocalDateTime.now()).recruiter(recruiter).build();
 
-          // save into database
-          Job savedJob = jobRepository.save(job);
+    private User getCurrentUser() {
 
-          // now we have to convert the entity into -> response DTO
-          return JobResponse.builder().id(savedJob.getId()).
-                  title(savedJob.getTitle()).
-                  company(savedJob.getCompany()).
-                  description(savedJob.getDescription()).
-                  location(savedJob.getDescription()).
-                  salary(savedJob.getSalary()).
-                  experienceRequired(savedJob.getExperienceRequired()).
-                  skills(savedJob.getSkills()).
-                  jobType(savedJob.getJobType()).
-                  createdAt(savedJob.getCreatedAt()).build();
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
 
+        String email = authentication.getName();
 
-          // real flow :
-          /* Job requestDTO -> use builder to create job entity -> save entity using repo
-          -> get saved entity -> convert saved entity -> JobResponseDTO -> return response
-           */
-
-
+        return userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
     }
 
     @Override
-    public JobResponse updateJob(Long JobId, JobRequest request) {
-        Job existingJob = jobRepository.findById(JobId).orElseThrow(() -> new RuntimeException("Job not found"));
+    public JobResponse createJob(JobRequest request) {
 
-        // update fields
+        User recruiter = getCurrentUser();
+
+        Job job = Job.builder()
+                .title(request.getTitle())
+                .company(request.getCompany())
+                .description(request.getDescription())
+                .location(request.getLocation())
+                .salary(request.getSalary())
+                .experienceRequired(request.getExperienceRequired())
+                .skills(request.getSkills())
+                .jobType(request.getJobType())
+                .createdAt(LocalDateTime.now())
+                .recruiter(recruiter)
+                .build();
+
+        Job savedJob = jobRepository.save(job);
+
+        return JobResponse.builder()
+                .id(savedJob.getId())
+                .title(savedJob.getTitle())
+                .company(savedJob.getCompany())
+                .description(savedJob.getDescription())
+                .location(savedJob.getLocation())
+                .salary(savedJob.getSalary())
+                .experienceRequired(savedJob.getExperienceRequired())
+                .skills(savedJob.getSkills())
+                .jobType(savedJob.getJobType())
+                .createdAt(savedJob.getCreatedAt())
+                .recruiterEmail(savedJob.getRecruiter().getEmail())
+                .build();
+    }
+
+    @Override
+    public JobResponse updateJob(Long jobId, JobRequest request) {
+
+        Job existingJob = jobRepository.findById(jobId)
+                .orElseThrow(() ->
+                        new RuntimeException("Job not found"));
+
         existingJob.setTitle(request.getTitle());
         existingJob.setCompany(request.getCompany());
         existingJob.setDescription(request.getDescription());
@@ -68,67 +85,76 @@ public class JobServiceImpl implements JobService {
         existingJob.setExperienceRequired(request.getExperienceRequired());
         existingJob.setSkills(request.getSkills());
         existingJob.setJobType(request.getJobType());
-
-        // we have to also update the timestamp
         existingJob.setUpdatedAt(LocalDateTime.now());
 
-        // we have to save the updated job as well
         Job updatedJob = jobRepository.save(existingJob);
 
-        // convert that entity -> responseDTO
-        return JobResponse.builder().id(updatedJob.getId()).
-                title(updatedJob.getTitle()).
-                company(updatedJob.getCompany()).
-                description(updatedJob.getDescription()).
-                location(updatedJob.getLocation()).
-                salary(updatedJob.getSalary()).
-                experienceRequired(updatedJob.getExperienceRequired()).
-                skills(updatedJob.getSkills()).jobType(updatedJob.getJobType()).
-                createdAt(updatedJob.getCreatedAt()).
-                recruiterEmail(updatedJob.getRecruiter().getEmail()).build();
+        return JobResponse.builder()
+                .id(updatedJob.getId())
+                .title(updatedJob.getTitle())
+                .company(updatedJob.getCompany())
+                .description(updatedJob.getDescription())
+                .location(updatedJob.getLocation())
+                .salary(updatedJob.getSalary())
+                .experienceRequired(updatedJob.getExperienceRequired())
+                .skills(updatedJob.getSkills())
+                .jobType(updatedJob.getJobType())
+                .createdAt(updatedJob.getCreatedAt())
+                .recruiterEmail(updatedJob.getRecruiter().getEmail())
+                .build();
     }
 
     @Override
     public void deleteJob(Long jobId) {
-           Job existingJob = jobRepository.findById(jobId).orElseThrow(()-> new RuntimeException("Job not found "));
-           jobRepository.delete(existingJob);
 
+        Job existingJob = jobRepository.findById(jobId)
+                .orElseThrow(() ->
+                        new RuntimeException("Job not found"));
 
+        jobRepository.delete(existingJob);
     }
 
     @Override
     public JobResponse getJobByID(Long jobId) {
-          // this will be proper response function
-          Job job = jobRepository.findById(jobId).orElseThrow(()-> new RuntimeException("Job not found"));
 
-        return JobResponse.builder().id(job.getId()).
-                title(job.getTitle()).
-                company(job.getCompany()).
-                description(job.getDescription()).
-                location(job.getLocation()).
-                salary(job.getSalary()).
-                experienceRequired(job.getExperienceRequired()).
-                skills(job.getSkills()).jobType(job.getJobType()).
-                createdAt(job.getCreatedAt()).
-                recruiterEmail(job.getRecruiter().getEmail()).build();
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() ->
+                        new RuntimeException("Job not found"));
 
+        return JobResponse.builder()
+                .id(job.getId())
+                .title(job.getTitle())
+                .company(job.getCompany())
+                .description(job.getDescription())
+                .location(job.getLocation())
+                .salary(job.getSalary())
+                .experienceRequired(job.getExperienceRequired())
+                .skills(job.getSkills())
+                .jobType(job.getJobType())
+                .createdAt(job.getCreatedAt())
+                .recruiterEmail(job.getRecruiter().getEmail())
+                .build();
     }
 
     @Override
     public List<JobResponse> getAllJobs() {
-            List<Job> jobs = jobRepository.findAll();
 
-            // again we have to convert into response dto
-            return jobs.stream().map(job->JobResponse.builder().id(job.getId()).title(job.getTitle()).
-                    company(job.getCompany()).description(job.getDescription()).
-                    location(job.getLocation()).salary(job.getSalary()).
-                    experienceRequired(job.getExperienceRequired()).
-                    skills(job.getSkills()).
-                    jobType(job.getJobType()).
-                    createdAt(job.getCreatedAt()).
-                    recruiterEmail(job.getRecruiter().getEmail()).build()).toList();
+        List<Job> jobs = jobRepository.findAll();
+
+        return jobs.stream()
+                .map(job -> JobResponse.builder()
+                        .id(job.getId())
+                        .title(job.getTitle())
+                        .company(job.getCompany())
+                        .description(job.getDescription())
+                        .location(job.getLocation())
+                        .salary(job.getSalary())
+                        .experienceRequired(job.getExperienceRequired())
+                        .skills(job.getSkills())
+                        .jobType(job.getJobType())
+                        .createdAt(job.getCreatedAt())
+                        .recruiterEmail(job.getRecruiter().getEmail())
+                        .build())
+                .toList();
     }
-
-
 }
-
