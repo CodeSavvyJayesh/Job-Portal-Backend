@@ -27,6 +27,12 @@ public class UserProfileServiceImpl implements UserProfileService {
                         .getContext()
                         .getAuthentication();
 
+        System.out.println("AUTH = " + authentication);
+
+        System.out.println("Name" + authentication.getName());
+
+
+
         String email = authentication.getName();
 
         return userRepository.findByEmail(email)

@@ -29,7 +29,7 @@ public class JwtUtil {
                 .claim("role",role)   // claim is used to add the extra data inside token
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SECRET_KEY) // ✅ correct way
+                .signWith(SECRET_KEY)
                 .compact();
     }
 
