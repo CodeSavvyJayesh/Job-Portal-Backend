@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Environment variable
+.env
+*.env
+ai-service/.env
