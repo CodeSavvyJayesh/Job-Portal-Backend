@@ -1,8 +1,12 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import google.generativeai as genai
 import os
+
+# here we have to make the use of corsMiddleware in order to connect the frontend with the backend 
+
 
 # Load environment variables
 load_dotenv()
@@ -24,6 +28,16 @@ app = FastAPI(
     version="1.0"
 )
 
+# cors configuration 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # DTO
 class ResumeRequest(BaseModel):
     resume_text: str
