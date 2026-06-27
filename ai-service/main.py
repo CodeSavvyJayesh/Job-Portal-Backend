@@ -1,5 +1,8 @@
 from fastapi import FastAPI, HTTPException
+from fastapi import UploadFile, File 
 from fastapi.middleware.cors import CORSMiddleware
+from utils.resume_parser import extract_resume_parser
+import tempfile
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import google.generativeai as genai
@@ -49,6 +52,32 @@ def home():
     return {
         "message": "AI Interview Copilot Running Successfully"
     }
+
+
+# we have to create an api that will upload the resume 
+@app.post("/upload-resume")
+async def upload_resume(file:UploadFile=File(...)):
+    try:
+        # we have to use the try catch block in every single function in order to catch the errror 
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+            content = await file.read()  # write a pdf to temp file 
+
+            temp_file.write(content)
+
+            temp_path = temp_file.name
+
+            # extract the resume text 
+            resume_text = extract_resume_parser(temp_path)
+
+            return {
+                "resume_text": resume_text
+            }
+
+    except Exception as e:
+                raise HTTPException(
+                    status_code = 500,
+                    detail = str(e)
+                )
 
 
 # Generate Questions API
