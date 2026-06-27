@@ -49,10 +49,7 @@ class ResumeRequest(BaseModel):
 # Home API
 @app.get("/")
 def home():
-    return {
-        "message": "AI Interview Copilot Running Successfully"
-    }
-
+    return "This is ai interview copilot page "
 
 # we have to create an api that will upload the resume 
 @app.post("/upload-resume")
