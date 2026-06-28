@@ -10,7 +10,11 @@ import os
 
 # here we have to make the use of corsMiddleware in order to connect the frontend with the backend 
 
-
+# in this main.py we have to make sure that should have above api:
+# 1. /upload-resume
+# 2. /start-interview
+# 3. /evaluate-interview/answer 
+# 4. /finish-interview   so basically only 4 endpoints are necessary 
 # Load environment variables
 load_dotenv()
 
@@ -77,13 +81,16 @@ async def upload_resume(file:UploadFile=File(...)):
                 )
 
 
-# Generate Questions API
-@app.post("/generate-questions")
+# Generate Questions API 
+# we have already created the busines logic of this particular api in the services layer 
+# also we have return the data transfer object in the request,response format 
+"""
+@app.post("/start-interview")
 def generate_questions(request: ResumeRequest):
 
     try:
 
-        prompt = f"""
+        prompt = f
         You are a senior technical interviewer.
 
         Analyze the following resume carefully.
@@ -96,7 +103,7 @@ def generate_questions(request: ResumeRequest):
         2. Questions should be relevant to the candidate's skills.
         3. Do not provide answers.
         4. Return only the questions.
-        """
+        
 
         response = model.generate_content(prompt)
 
@@ -109,3 +116,5 @@ def generate_questions(request: ResumeRequest):
             status_code=500,
             detail=str(e)
         )
+"""
+
