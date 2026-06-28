@@ -1,41 +1,52 @@
-from fastapi import FastAPI, HTTPException
-from fastapi import UploadFile, File 
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from utils.resume_parser import extract_resume_parser
-import tempfile
-from pydantic import BaseModel
 from dotenv import load_dotenv
 import google.generativeai as genai
+import tempfile
 import os
 
-# here we have to make the use of corsMiddleware in order to connect the frontend with the backend 
+from dto.interview_request import InterviewRequest
+from services.interview_generator import InterviewGenerator
+from utils.resume_parser import extract_resume_parser
 
-# in this main.py we have to make sure that should have above api:
-# 1. /upload-resume
-# 2. /start-interview
-# 3. /evaluate-interview/answer 
-# 4. /finish-interview   so basically only 4 endpoints are necessary 
-# Load environment variables
+# ==========================
+# Load Environment Variables
+# ==========================
+
 load_dotenv()
 
+# ==========================
 # Configure Gemini
+# ==========================
+
 genai.configure(
     api_key=os.getenv("GEMINI_API_KEY")
 )
 
-# Gemini Model
 model = genai.GenerativeModel(
     "models/gemini-2.5-flash"
 )
 
+# ==========================
+# Create Service Objects
+# ==========================
+
+interview_generator = InterviewGenerator(model)
+
+# ==========================
 # FastAPI App
+# ==========================
+
 app = FastAPI(
     title="AI Interview Copilot",
-    description="Generate interview questions from resume",
-    version="1.0"
+    description="AI Powered Interview System",
+    version="2.0"
 )
 
-# cors configuration 
+# ==========================
+# CORS Configuration
+# ==========================
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -45,76 +56,78 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# DTO
-class ResumeRequest(BaseModel):
-    resume_text: str
 
-
+# ==========================
 # Home API
+# ==========================
+
 @app.get("/")
 def home():
-    return "This is ai interview copilot page "
+    return {
+        "message": "AI Interview Copilot Running Successfully"
+    }
 
-# we have to create an api that will upload the resume 
+# ==========================
+# Upload Resume API
+# ==========================
+
 @app.post("/upload-resume")
-async def upload_resume(file:UploadFile=File(...)):
+async def upload_resume(file: UploadFile = File(...)):
+
     try:
-        # we have to use the try catch block in every single function in order to catch the errror 
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-            content = await file.read()  # write a pdf to temp file 
+
+            content = await file.read()
 
             temp_file.write(content)
 
             temp_path = temp_file.name
 
-            # extract the resume text 
-            resume_text = extract_resume_parser(temp_path)
-
-            return {
-                "resume_text": resume_text
-            }
-
-    except Exception as e:
-                raise HTTPException(
-                    status_code = 500,
-                    detail = str(e)
-                )
-
-
-# Generate Questions API 
-# we have already created the busines logic of this particular api in the services layer 
-# also we have return the data transfer object in the request,response format 
-"""
-@app.post("/start-interview")
-def generate_questions(request: ResumeRequest):
-
-    try:
-
-        prompt = f
-        You are a senior technical interviewer.
-
-        Analyze the following resume carefully.
-
-        Resume:
-        {request.resume_text}
-
-        Generate:
-        1. Five technical interview questions.
-        2. Questions should be relevant to the candidate's skills.
-        3. Do not provide answers.
-        4. Return only the questions.
-        
-
-        response = model.generate_content(prompt)
+        resume_text = extract_resume_parser(temp_path)
 
         return {
-            "questions": response.text
+            "resume_text": resume_text
         }
 
     except Exception as e:
+
         raise HTTPException(
             status_code=500,
             detail=str(e)
         )
-"""
 
+# ==========================
+# Start Interview API
+# ==========================
+
+@app.post("/start-interview")
+def start_interview(request: InterviewRequest):
+
+    try:
+
+        return interview_generator.start_interview(
+            request.resume_text
+        )
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+# ==========================
+# Evaluate Answer API
+# (Coming Soon)
+# ==========================
+
+# @app.post("/evaluate-answer")
+
+
+# ==========================
+# Finish Interview API
+# (Coming Soon)
+# ==========================
+
+# @app.post("/finish-interview")
