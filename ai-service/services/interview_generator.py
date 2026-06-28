@@ -1,54 +1,118 @@
-# this consist of the business logic of the project for every api end points 
-# right now main.py is contains prompt and all everything which is making it messy 
-# the solution over that is main.py will basically call the service layer... then gemini... then interview response 
-# basically excactly like a controller -> service -> repo 
-# our main.py is acting like a controller layer where are actually writing the api code 
+"""
+Interview Generator Service
+
+Responsibilities:
+1. Accept extracted resume text.
+2. Create AI prompt.
+3. Call Gemini API.
+4. Parse Gemini JSON response.
+5. Return InterviewResponse DTO.
+"""
+
+import json
 import google.generativeai as genai
+
 from dto.interview_response import InterviewResponse
 
+
 class InterviewGenerator:
-    def __init__(self,model):
+
+    def __init__(self, model):
         self.model = model
 
-    def start_interview(self,resume_text: str):
-
-        # here we also supposed to write the prompt not in the main.py file 
+    def start_interview(self, resume_text: str) -> InterviewResponse:
 
         prompt = f"""
-You are a senior software enginnering interviewer.
-Analyze the following resume.
+You are an experienced Senior Software Engineering Interviewer.
+
+Analyze the following resume carefully.
 
 Resume:
+
 {resume_text}
 
-Perform the following tasks:
+Your tasks are:
 
 1. Extract the candidate's full name.
+
 2. Generate a professional greeting.
-3. Generate exactly 15 interview questions.
+
+3. Generate EXACTLY 15 interview questions.
+
+Interview Structure:
+
+Round 1 (Introduction)
+- 2 Questions
+
+Round 2 (Technical Skills)
+- 5 Questions
+
+Round 3 (Projects)
+- 5 Questions
+
+Round 4 (Internship / Experience)
+- 1 Question
+(If internship is unavailable, ask another project question.)
+
+Round 5 (HR)
+- 2 Questions
 
 Rules:
 
-- First 2 questions should be introductory.
-- Next questions should be based on skills.
-- Then ask project related questions.
-- If intership exists, ask interships questions.
-- Finish with HR questions.
+• Questions must be personalized.
 
-Return ONLY JSON.
+• Never ask generic DSA questions unless mentioned in resume.
+
+• Questions should be based on:
+  - Skills
+  - Projects
+  - Internship
+  - Technologies
+  - Achievements
+
+Return ONLY valid JSON.
 
 Example:
+
 {{
-"candidate_name" : "John Doe",
-"greeting": "Hello John! Welcome to your AI interview.",
+    "candidate_name": "John Doe",
 
-"questions":[
-"...",
-"...",
-"..."
-]
+    "greeting":
+    "Hello John! Welcome to your AI Interview. I have carefully analyzed your resume. Let's begin.",
+
+    "questions": [
+
+        "Tell me about yourself.",
+
+        "Walk me through your resume.",
+
+        "Explain Dependency Injection.",
+
+        "What is JWT Authentication?",
+
+        "Explain your Job Portal project.",
+
+        "... remaining questions ..."
+    ]
 }}
-"""
-    response = self.model.generate_content(prompt)
 
-    return response.text
+Do NOT return markdown.
+
+Do NOT return ```json.
+
+Return ONLY JSON.
+"""
+
+        response = self.model.generate_content(prompt)
+
+        data = json.loads(response.text)
+
+        return InterviewResponse(
+
+            candidate_name=data["candidate_name"],
+
+            greeting=data["greeting"],
+
+            questions=data["questions"]
+
+        )
