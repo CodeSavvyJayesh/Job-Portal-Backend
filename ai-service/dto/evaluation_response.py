@@ -11,8 +11,8 @@ class EvaluationResponse(BaseModel):
     # basically in response it will show score, strengths, weakness, and better answer 
     
     score : int 
-    strengths : list[str]
-    weakness : list[str]
+    strengths : List[str]
+    weaknesses : List[str]
     ideal_answer : str
 
     # here we have created dto sucessfully 

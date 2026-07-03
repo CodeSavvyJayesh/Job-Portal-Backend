@@ -9,6 +9,9 @@ from dto.interview_request import InterviewRequest
 from services.interview_generator import InterviewGenerator
 from utils.resume_parser import extract_resume_parser
 
+from dto.evaluation_request import EvaluationRequest
+from services.evaluation_service import EvaluationService
+
 # ==========================
 # Load Environment Variables
 # ==========================
@@ -33,9 +36,11 @@ model = genai.GenerativeModel(
 
 interview_generator = InterviewGenerator(model)
 
-# ==========================
-# FastAPI App
-# ==========================
+# here we have to create the evaluation_service 
+evalation_service = EvaluationService(model)
+
+
+
 
 app = FastAPI(
     title="AI Interview Copilot",
@@ -123,11 +128,23 @@ def start_interview(request: InterviewRequest):
 # ==========================
 
 # @app.post("/evaluate-answer")
+# here we have to basically call that particular api 
+# its an obvious that we have to use the try catch block 
+# inside try block we have to write the logic 
+# else it should throw an error 
+# and finally block will basically make sure that we are going further 
+@app.post("/evaluate-answer")
+def evaluate_answer(request: EvaluationRequest):
+    try:
+        return evalation_service.evaluate_answer(
+            request.question,
+            request.answer
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code = 500,
+            detail=str(e)
+        )
 
-
-# ==========================
-# Finish Interview API
-# (Coming Soon)
-# ==========================
 
 # @app.post("/finish-interview")
